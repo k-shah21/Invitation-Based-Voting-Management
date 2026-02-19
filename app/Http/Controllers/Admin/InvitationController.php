@@ -26,17 +26,26 @@ class InvitationController extends Controller
         $voters      = Voter::all();
         $invitations = Invitation::with(['session', 'voter'])->latest()->paginate(20);
 
+        Mail::to('kshah@fossphorus.com');
         return view('admin.invitations.index', compact('sessions', 'voters', 'invitations'));
     }
 
     public function send(Request $request)
     {
+       
         $request->validate([
             'voting_session_id' => 'required|exists:voting_sessions,id',
             'voter_ids'         => 'required|array',
             'voter_ids.*'       => 'exists:voters,id',
         ]);
 
+        $exists = Invitation::where('voting_session_id', $request->voting_session_id)
+            ->where('voter_id', $request->id)
+            ->exists();
+
+        if ($exists) {
+            return back()->with('error', 'Invitation already sent to this voter');
+        }
         $session  = VotingSession::findOrFail($request->voting_session_id);
         $voterIds = $request->voter_ids;
         $sent     = 0;

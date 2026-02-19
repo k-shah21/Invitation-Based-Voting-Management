@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\VotingSessionController;
 use App\Http\Controllers\Admin\NomineeController;
 use App\Http\Controllers\Admin\VoterController;
 use App\Http\Controllers\Admin\InvitationController;
+use App\Http\Controllers\PublicVotingController;
 
 Route::get('/', function () {
     return redirect()->route('admin.dashboard');
@@ -31,7 +32,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::post('invitations/send', [InvitationController::class, 'send'])->name('invitations.send');
 });
 
-use App\Http\Controllers\PublicVotingController;
+
 
 Route::middleware(['voting.token', 'throttle:10,1'])->group(function () {
     Route::get('/vote/{token}', [PublicVotingController::class, 'show'])->name('vote.show');
